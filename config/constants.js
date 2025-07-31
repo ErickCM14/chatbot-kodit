@@ -1,0 +1,11 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+export const MONGO_URI = process.env.MONGO_URI;
+export const BASE_URL_OPENROUTER = process.env.BASE_URL_OPENROUTER;
+export const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+export const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL;
+export const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+export const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+export const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+export const URL_META_WHATSAPP = process.env.URL_META_WHATSAPP;

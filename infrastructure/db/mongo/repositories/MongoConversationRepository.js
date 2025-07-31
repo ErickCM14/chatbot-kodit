@@ -52,4 +52,9 @@ export class MongoConversationRepository extends ConversationRepository {
             });
         }
     }
+
+    async findOne(conditions) {
+        return this.base.findOne(conditions);
+    }
+
 }

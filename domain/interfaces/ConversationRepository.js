@@ -10,4 +10,8 @@ export class ConversationRepository {
     async saveMessage(number, role, message) {
         throw new Error("Method not implemented");
     }
+
+    async findOne(conditions) {
+        throw new Error("Method not implemented");
+    }
 }

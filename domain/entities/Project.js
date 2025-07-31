@@ -1,6 +1,6 @@
 export class Project {
   constructor({ phone, name, email, contactPhone, company, projectType, description }) {
-    if (!phone || !email || !projectType) throw new Error("Datos obligatorios faltantes");
+    if (!phone || !email || !projectType) throw new Error("Missing mandatory data");
     this.phone = phone;
     this.name = name;
     this.email = email;

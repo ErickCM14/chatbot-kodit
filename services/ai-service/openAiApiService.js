@@ -1,14 +1,13 @@
-dotenv.config();
 import OpenAI from "openai";
-import dotenv from "dotenv";
 import { getRepositories } from "../../config/RepositoryProvider.js";
 import { PROMPT_GPT } from "./prompts/prompt_gpt.js";
+import { BASE_URL_OPENROUTER, OPENROUTER_API_KEY, OPENROUTER_MODEL } from "../../config/constants.js";
 
 export class OpenAiApi {
     constructor() {
-        this.base_url_openrouter = process.env.BASE_URL_OPENROUTER;
-        this.apiKey = process.env.OPENROUTER_API_KEY;
-        this.model_name = process.env.OPENROUTER_MODEL;
+        this.base_url_openrouter = BASE_URL_OPENROUTER;
+        this.apiKey = OPENROUTER_API_KEY;
+        this.model_name = OPENROUTER_MODEL;
         this.openai = new OpenAI({
             baseURL: this.base_url_openrouter,
             apiKey: this.apiKey

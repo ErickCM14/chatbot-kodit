@@ -1,16 +1,16 @@
+import { WHATSAPP_TOKEN, PHONE_NUMBER_ID, URL_META_WHATSAPP } from '../../config/constants.js';
 import axios from 'axios';
 
 export class Whatsapp {
     constructor() {
-        this.url = `https://graph.facebook.com/v22.0/`;
+        this.url = URL_META_WHATSAPP;
+        this.whatsapp_token = WHATSAPP_TOKEN;
+        this.phone_number_id = PHONE_NUMBER_ID;
     }
 
     sendMessage = async (to, message) => {
-        const WHATSAPP_TOKEN = 'EAAPTG5tZAfuoBPJY27qqyAuHUqBAtcsDqjsdGVoVXfWOoy6KyVouSbyN39a46C2lsnjLAnxMhOdWJfFaFUcuwpGcZArhML0JVzZBH1sm3YVuUstiMbvisePAQoSRRhqAouUaqfbQR1yiulZC0i2G6g1ws7k0BZA93roTvFbRHmIolxb4cfEpZBz4A4QZAluPZAmYvrteZCEcxnP1carz9A5UZCO8KJRQ3Xtcgj5brXrGZC64G2j7GIpJ9OSgmJ7bHZBh5QZDZD';
-        const PHONE_NUMBER_ID = '103168086004644';
-
         try {
-            const url = `${this.url}${PHONE_NUMBER_ID}/messages`;
+            const url = `${this.url}${this.phone_number_id}/messages`;
 
             const response = await axios.post(
                 url,
@@ -22,7 +22,7 @@ export class Whatsapp {
                 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                        'Authorization': `Bearer ${this.whatsapp_token}`,
                         'Content-Type': 'application/json'
                     }
                 }
