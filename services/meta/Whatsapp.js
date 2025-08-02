@@ -18,7 +18,7 @@ export class Whatsapp {
                     messaging_product: 'whatsapp',
                     to,
                     type: 'text',
-                    text: { body: message }
+                    text: { body: `${message}` }
                 },
                 {
                     headers: {
@@ -28,7 +28,7 @@ export class Whatsapp {
                 }
             );
 
-            console.log('✅ Mensaje enviado:', response.data);
+            // console.log('✅ Mensaje enviado:', response.data);
         } catch (error) {
             console.error('❌ Error al enviar mensaje:', error.response?.data || error.message);
         }

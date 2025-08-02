@@ -9,3 +9,5 @@ export const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 export const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 export const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 export const URL_META_WHATSAPP = process.env.URL_META_WHATSAPP;
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+export const OPENAI_MODEL = process.env.OPENAI_MODEL;

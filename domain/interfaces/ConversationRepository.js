@@ -14,4 +14,8 @@ export class ConversationRepository {
     async findOne(conditions) {
         throw new Error("Method not implemented");
     }
+
+    async getPendingRecords() {
+        throw new Error("Method getPendingRecords not implemented");
+    }
 }

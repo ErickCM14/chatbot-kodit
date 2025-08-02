@@ -76,16 +76,19 @@ export class SaveProject {
                         user.step++;
 
                         const response = await this.openAiApi.consulta_gpt(text, from);
-                        await this.whatsapp.sendMessage(from, response);
+                        await this.whatsapp.sendMessage(from, response.data);
 
                         // fs.appendFileSync('conversaciones-chatgpt.txt', JSON.stringify({ response }, null, 2) + '\n');
 
                         await this.conversationRepo.save(user.data)
-                        delete this.conversations[from];
                         break;
                     default:
                         const responses = await this.openAiApi.consulta_gpt(text, from);
-                        await this.whatsapp.sendMessage(from, responses);
+
+                        await this.whatsapp.sendMessage(from, responses.data);
+                        if (responses.updateStatus) {
+                            delete this.conversations[from];
+                        }
 
                         // fs.appendFileSync('conversaciones-chatgpt.txt', JSON.stringify({ responses }, null, 2) + '\n');
                         break;

@@ -17,6 +17,7 @@ const ConversationSchema = new mongoose.Schema({
   company: String,
   projectType: String,
   description: String,
+  pending: Number,
   messages: [MessageSchema]
 }, { timestamps: true });
 

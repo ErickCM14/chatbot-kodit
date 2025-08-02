@@ -9,6 +9,11 @@ const router = Router();
 
 router.get('/', chatbotController.verify);
 router.post('/', chatbotController.index);
+router.get('/estimation/:phone', chatbotController.estimation);
+router.post('/estimation', chatbotController.saveEstimation);
+router.get('/download-estimation/:phone', chatbotController.downloadEstimation);
+router.get('/pending-conversations', chatbotController.pendingConversations);
+router.get('/pending-processing-conversations', chatbotController.processingPendingConversations);
 
 // const VERIFY_TOKEN = 'miverifytoken';
 // const WHATSAPP_TOKEN = 'EAAKQbqrZAqy4BPLt4ZCmsXTvvF74slgyXHkUMOXUuDI6YeMdaEFPpnwFsTzZCLKhB7VEsDlSea6mGKjcXMZAABBXRe4czdTqryEXdohrWSmgo7gU0FGhsr53f4TpVq0znJ47XsA2QbxPcguOHfMpESxEqtXfbecPl5qpklGNtrR5YaoMviesD9RoRc4t9dBtEl95h3h5B1Th1MxoYs7d62ZBZASnjkZBt9PVLW7ZBuZCUZCschiFGvbfbweqDZADeY3IAZDZD';

@@ -18,14 +18,14 @@ export class MongoConversationRepository extends ConversationRepository {
 
     async getConversationByPhone(phone) {
         const conversation = await this.base.findOne({ phone });
-        if (!conversation || !conversation.mensajes) {
+        if (!conversation || !conversation.messages) {
             return [];
         }
 
         // Convertir el formato de mensajes para que sea compatible con OpenAI
-        return conversation.mensajes.map(msg => ({
-            role: msg.rol,
-            content: msg.mensaje
+        return conversation.messages.map(msg => ({
+            role: msg.role,
+            content: msg.message
         }));
     }
 
@@ -55,6 +55,25 @@ export class MongoConversationRepository extends ConversationRepository {
 
     async findOne(conditions) {
         return this.base.findOne(conditions);
+    }
+
+    // async actualizarEstadoPendiente(numero, pendiente) {
+    async updatePendingStatus(phone, pending) {
+        // const now = new Date();
+        await this.model.updateOne(
+            { phone },
+            {
+                $set: {
+                    pending: pending,
+                    // ultima_actualizacion: now
+                }
+            }
+        );
+    }
+
+    // async obtenerRegistrosPendientes() {
+    async getPendingRecords() {
+        return this.base.findAll({ pending: 0 });
     }
 
 }

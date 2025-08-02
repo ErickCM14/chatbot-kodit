@@ -50,7 +50,7 @@ Horas estimadas: [número] horas
 Total estimado aproximado de horas: [total]
 Costo total aproximado: $[total en MXN]
 
-(el costo por hora tómalo como $1500 MXN y esto no se lo muestres al cliente)
+(el costo por hora tómalo como $1500 MXN y esto no se lo muestres al cliente, muy importante no lo muestres al cliente)
 
 Al final, muestra este mensaje:
 
@@ -58,3 +58,35 @@ Si deseas una estimación más detallada y formal, por favor escríbenos a conta
 
 No muestres el resumen hasta que hayas terminado todas las preguntas y confirmado bien los requerimientos.
 `;
+
+
+export const PROMPT_ESTIMACION_JSON = `A partir de la conversación entre un cliente y un consultor, extrae los siguientes datos:
+
+1. Nombre completo del cliente.
+2. Correo electrónico del cliente.
+3. Un listado de módulos del proyecto, donde cada módulo debe tener:
+   - nombre del módulo
+   - descripción del módulo
+   - número estimado de horas
+
+Devuelve únicamente un objeto JSON con esta estructura:
+
+{
+  "nombre": "Nombre del cliente",
+  "correo": "correo@ejemplo.com",
+  "total_costo":"costo aproximado estimado",
+  "total_horas": "total de horas estimadas,
+  "modulos": [
+    {
+      "nombre": "Nombre del módulo",
+      "descripcion": "Descripción del módulo",
+      "horas": número
+    },
+    ...
+  ]
+}
+
+No incluyas ningún texto adicional fuera del JSON. Si no hay información suficiente para un campo, usa null o deja el campo como string vacío ("").
+`;
+
+
