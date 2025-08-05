@@ -111,7 +111,7 @@ export class ChatbotController extends Controller {
 
             // Agregar información básica
             datosExcel.push(['Número', phone]);
-            datosExcel.push(['Fecha de Creación', estimation.fecha_creacion ? new Date(estimation.fecha_creacion).toLocaleString() : 'N/A']);
+            datosExcel.push(['Fecha de Creación', estimation.createdAt ? new Date(estimation.createdAt).toLocaleString() : 'N/A']);
             datosExcel.push([]); // Línea en blanco
 
             // Procesar campos de la estimación
