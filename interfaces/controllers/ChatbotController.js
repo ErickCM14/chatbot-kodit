@@ -116,7 +116,7 @@ export class ChatbotController extends Controller {
 
             // Procesar campos de la estimación
             Object.keys(estimation).forEach(key => {
-                if (key !== 'numero' && key !== 'fecha_creacion' && key !== 'timestamp' && key !== '_id') {
+                if (key !== 'phone' && key !== 'createdAt' && key !== 'timestamp' && key !== '_id') {
                     const valor = estimation[key];
 
                     // Si es un array de módulos, procesarlos individualmente
