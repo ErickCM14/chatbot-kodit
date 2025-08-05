@@ -1,5 +1,5 @@
 export class Conversation {
-  constructor({ phone, name, email, contactPhone, company, projectType, description, messages }) {
+  constructor({ phone, name, email, contactPhone, company, projectType, description, messages, pending }) {
     if (!phone || !email || !projectType) throw new Error("Missing mandatory data");
     this.phone = phone;
     this.name = name;
@@ -9,5 +9,6 @@ export class Conversation {
     this.projectType = projectType;
     this.description = description;
     this.messages = messages;
+    this.pending = pending;
   }
 }

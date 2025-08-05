@@ -5,6 +5,7 @@ import { OpenAiApi } from '../../services/ai-service/openAiApiService.js';
 import { SaveProject } from '../../application/SaveProject.js';
 import { VERIFY_TOKEN } from '../../config/constants.js';
 import ExcelJS from 'exceljs';
+import { Estimation } from '../../domain/entities/Estimation.js';
 // import fs from 'fs';
 
 export class ChatbotController extends Controller {
@@ -102,21 +103,31 @@ export class ChatbotController extends Controller {
             return res.status(400).json({ error: 'Phone is required' });
         }
         try {
-            const { estimateRepo } = await getRepositories();
+            const { estimateRepo, conversationRepo } = await getRepositories();
+            this.conversationRepository = conversationRepo;
             this.estimateRepository = estimateRepo;
-            const estimation = await this.estimateRepository.getEstimateByNumber(phone);
+            const conversation = await this.conversationRepository.findOne({ phone });
+            let estimation = await this.estimateRepository.getEstimateByNumber(phone);
+            if (!estimation) {
+                return res.status(404).json({ error: 'Estimation not found' });
+            }
+
+            estimation = new Estimation(estimation);
 
             // Crear datos para el Excel
             const datosExcel = [];
 
             // Agregar información básica
             datosExcel.push(['Número', phone]);
+            datosExcel.push(['Nombre', conversation.name]);
+            datosExcel.push(['Correo', conversation.email]);
+            datosExcel.push(['Descripción', conversation.description]);
             datosExcel.push(['Fecha de Creación', estimation.createdAt ? new Date(estimation.createdAt).toLocaleString() : 'N/A']);
             datosExcel.push([]); // Línea en blanco
 
             // Procesar campos de la estimación
             Object.keys(estimation).forEach(key => {
-                if (key !== 'phone' && key !== 'createdAt' && key !== 'timestamp' && key !== '_id') {
+                if (key !== 'phone' && key !== 'description' && key !== 'createdAt' && key !== 'timestamp' && key !== '_id') {
                     const valor = estimation[key];
 
                     // Si es un array de módulos, procesarlos individualmente
