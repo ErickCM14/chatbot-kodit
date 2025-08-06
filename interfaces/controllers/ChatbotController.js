@@ -3,7 +3,8 @@ import { getRepositories } from '../../config/RepositoryProvider.js';
 import { Whatsapp } from '../../services/meta/Whatsapp.js';
 import { OpenAiApi } from '../../services/ai-service/openAiApiService.js';
 import { SaveProject } from '../../application/SaveProject.js';
-import { VERIFY_TOKEN } from '../../config/constants.js';
+import { VERIFY_TOKEN, OPTIONS_ENUM } from '../../config/constants.js';
+import { PROMPT_DESARROLLO_SOFTWARE, PROMPT_CIBERSEGURIDAD, PROMPT_FABRICA_SOFTWARE, PROMPT_INTELIGENCIA_ARTIFICIAL, PROMPT_CONSULTORIA_TI } from '../../services/ai-service/prompts/prompt_gpt.js';
 import ExcelJS from 'exceljs';
 import { Estimation } from '../../domain/entities/Estimation.js';
 // import fs from 'fs';
@@ -16,13 +17,21 @@ export class ChatbotController extends Controller {
         this.openAiApi = new OpenAiApi();
         this.conversations = {};
         this.verifyToken = VERIFY_TOKEN;
+        this.optionsEnum = OPTIONS_ENUM;
+        this.prompts = {
+            [this.optionsEnum['1']]: PROMPT_DESARROLLO_SOFTWARE,
+            [this.optionsEnum['2']]: PROMPT_FABRICA_SOFTWARE,
+            [this.optionsEnum['3']]: PROMPT_CIBERSEGURIDAD,
+            [this.optionsEnum['4']]: PROMPT_INTELIGENCIA_ARTIFICIAL,
+            [this.optionsEnum['5']]: PROMPT_CONSULTORIA_TI
+        };
     }
 
     index = async (req, res) => {
         try {
             const { conversationRepo } = await getRepositories();
             this.conversationRepository = conversationRepo;
-            this.saveProject = new SaveProject(this.conversationRepository, this.whatsapp, this.conversations, this.openAiApi);
+            this.saveProject = new SaveProject(this.conversationRepository, this.whatsapp, this.conversations, this.openAiApi, this.optionsEnum, this.prompts);
 
             const entry = req.body.entry?.[0];
             const changes = entry?.changes?.[0];
@@ -89,8 +98,6 @@ export class ChatbotController extends Controller {
             if (!estimation) {
                 return this.sendResponse(res, 'No estimate found for this number', null, false, 404);
             }
-            console.log("Teléfono recibido:", phone);
-            console.log("Tsafsfsaf:", estimation);
             this.sendResponse(res, 'Successfully', estimation);
         } catch (error) {
             this.sendError(res, error.message);
@@ -181,6 +188,7 @@ export class ChatbotController extends Controller {
 
         } catch (error) {
             console.error('Error al obtener estimación para el número:', phone, error);
+            return this.sendError(res, error.message);
             if (error.message.includes('No se encontró estimación')) {
                 return res.status(404).json({ error: 'Estimación no encontrada', detail: error.message });
             }
@@ -258,6 +266,7 @@ export class ChatbotController extends Controller {
 
         } catch (error) {
             console.error('Error general al procesar conversaciones pendientes:', error);
+            return this.sendError(res, error.message);
             return res.status(500).json({
                 error: 'Error al procesar conversaciones pendientes',
                 detail: error.message

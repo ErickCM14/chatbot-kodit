@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { getRepositories } from "../../config/RepositoryProvider.js";
-import { PROMPT_GPT, PROMPT_ESTIMACION_JSON } from "./prompts/prompt_gpt.js";
+import { PROMPT_DESARROLLO_SOFTWARE, PROMPT_ESTIMACION_JSON } from "./prompts/prompt_gpt.js";
 import { BASE_URL_OPENROUTER, OPENROUTER_API_KEY, OPENROUTER_MODEL, OPENAI_API_KEY, OPENAI_MODEL } from "../../config/constants.js";
 
 export class OpenAiApi {
@@ -17,7 +17,7 @@ export class OpenAiApi {
         });
     }
 
-    consulta_gpt = async (message, phone, prompt = PROMPT_GPT) => {
+    query = async (message, phone, prompt = PROMPT_DESARROLLO_SOFTWARE) => {
         if (!message) {
             throw new Error('Message is required');
         }

@@ -1,9 +1,11 @@
 export class SaveProject {
-    constructor(ConversationRepo, Whatsapp, Conversations, OpenAiApi) {
+    constructor(ConversationRepo, Whatsapp, Conversations, OpenAiApi, OptionsEnum, Prompts) {
         this.conversationRepo = ConversationRepo;
         this.whatsapp = Whatsapp;
         this.conversations = Conversations;
         this.openAiApi = OpenAiApi;
+        this.enumProjects = OptionsEnum;
+        this.prompts = Prompts;
     }
 
     async execute(message) {
@@ -56,14 +58,29 @@ export class SaveProject {
                         }
                         user.data.company = text;
                         user.step++;
-                        await this.whatsapp.sendMessage(from, "🛠️ ¿Qué tipo de servicio requieres?\n1. Desarrollo de software\n2. Ciberseguridad");
+                        await this.whatsapp.sendMessage(from, "🛠️ ¿Qué tipo de servicio requieres?\n1. Desarrollo de software\n2. Fábrica de software\n3. Ciberseguridad\n4. Inteligencia Artificial\n5. Consultoria TI");
                         break;
                     case 4:
-                        if (text !== '1' && text !== '2') {
-                            await this.whatsapp.sendMessage(from, "❗Por favor, escribe '1' o '2' para elegir una opción válida.");
-                            break;
+                        const normalizedText = this.normalizeText(text.toString());
+                        if (this.enumProjects[text.toString()]) {
+                            user.data.projectType = this.enumProjects[text.toString()];
+                        } else {
+                            const matchedOption = Object.values(this.enumProjects).find(
+                                option => this.normalizeText(option) === normalizedText
+                            );
+
+                            if (matchedOption) {
+                                user.data.projectType = matchedOption;
+                            } else {
+                                await this.whatsapp.sendMessage(from, "❗Por favor, elige una opción válida:\n1-5 o escribe el nombre del servicio.");
+                                break;
+                            }
                         }
-                        user.data.projectType = text === '1' ? 'Desarrollo de software' : 'Ciberseguridad';
+                        // if (text !== '1' && text !== '2') {
+                        //     await this.whatsapp.sendMessage(from, "❗Por favor, escribe '1' o '2' para elegir una opción válida.");
+                        //     break;
+                        // }
+                        // user.data.projectType = text === '1' ? 'Desarrollo de software' : 'Ciberseguridad';
                         user.step++;
                         await this.whatsapp.sendMessage(from, '📝 Describe brevemente tu proyecto:');
                         break;
@@ -75,7 +92,7 @@ export class SaveProject {
                         user.data.description = text;
                         user.step++;
 
-                        const response = await this.openAiApi.consulta_gpt(text, from);
+                        const response = await this.openAiApi.query(text, from, this.prompts[user.data.projectType]);
                         await this.whatsapp.sendMessage(from, response.data);
 
                         // fs.appendFileSync('conversaciones-chatgpt.txt', JSON.stringify({ response }, null, 2) + '\n');
@@ -83,7 +100,7 @@ export class SaveProject {
                         await this.conversationRepo.save(user.data)
                         break;
                     default:
-                        const responses = await this.openAiApi.consulta_gpt(text, from);
+                        const responses = await this.openAiApi.query(text, from, this.prompts[user.data.projectType]);
 
                         await this.whatsapp.sendMessage(from, responses.data);
                         if (responses.updateStatus) {
@@ -100,5 +117,9 @@ export class SaveProject {
             // await this.whatsapp.sendMessage(from, error.message);
             throw new Error(error.message);
         }
+    }
+
+    normalizeText(text) {
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
     }
 }
