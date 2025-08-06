@@ -17,7 +17,7 @@ export class BaseRepository {
     }
 
     async findOne(conditions) {
-        return this.model.findOne(conditions).lean();
+        return this.model.findOne(conditions).sort({ _id: -1 }).lean();
     }
 
     async update(id, data) {

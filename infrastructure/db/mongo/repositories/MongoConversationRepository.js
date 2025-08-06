@@ -76,4 +76,11 @@ export class MongoConversationRepository extends ConversationRepository {
         return this.base.findAll({ pending: 0 });
     }
 
+    async cleanMessages(phone) {
+        await this.model.updateOne(
+            { phone },
+            { $set: { messages: [] } }
+        );
+    }
+
 }

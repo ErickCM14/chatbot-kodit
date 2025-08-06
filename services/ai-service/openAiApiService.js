@@ -61,6 +61,8 @@ export class OpenAiApi {
             if (response.includes("contacto@kodit.com.mx")) {
                 await this.conversationRepository.updatePendingStatus(phone, 0);
                 updateStatus = true;
+                await this.generateEstimateByNumber(phone);
+                await this.conversationRepository.cleanMessages(phone);
             }
 
             const res = { data: response, updateStatus };
