@@ -83,4 +83,22 @@ export class MongoConversationRepository extends ConversationRepository {
         );
     }
 
+    async getAntepenultimateMessageAssistant(phone) {
+        const conversation = await this.base.findOne({ phone });
+        if (!conversation || !conversation.messages) {
+            return null;
+        }
+
+        const assistantMessages = conversation.messages.filter(msg => msg.role === 'assistant');
+
+        if (assistantMessages.length < 3) {
+            return null;
+        }
+
+        const message = assistantMessages[assistantMessages.length - 2];
+
+        return message.message
+    }
+
+
 }

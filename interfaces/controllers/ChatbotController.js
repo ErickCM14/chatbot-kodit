@@ -39,13 +39,25 @@ export class ChatbotController extends Controller {
             const message = value?.messages?.[0];
 
             if (message) {
-                await this.saveProject.execute(message);
-            }
+                if (message.timestamp) {
+                    const messageTime = parseInt(message.timestamp, 10) * 1000;
+                    const ageMinutes = (Date.now() - messageTime) / 1000 / 60;
 
-            this.sendResponse(res);
+                    if (ageMinutes > 3) {
+                        return res.status(200).send('Successfully');
+                    }
+                }
+                res.status(200).send('Successfully');
+                await this.saveProject.execute(message);
+                return;
+            }
+            res.status(200).send('Successfully');
+            // res.status(200).send('Successfully');
         } catch (error) {
             console.error(error.message);
-            this.sendError(res, error.message);
+            // this.sendResponse(res, error.message);
+            return res.status(200).send(error.message);
+            // this.sendError(res, error.message);
         }
     }
 
@@ -77,7 +89,6 @@ export class ChatbotController extends Controller {
             }
 
             const estimation = await this.openAiApi.generateEstimateByNumber(phone);
-            console.log("Estimation:", estimation);
             this.sendResponse(res, 'Successfully', estimation);
         } catch (error) {
             this.sendError(res, error.message);
@@ -104,16 +115,30 @@ export class ChatbotController extends Controller {
         }
     }
 
+    estimations = async (req, res) => {
+        try {
+            const { estimateRepo } = await getRepositories();
+            this.estimateRepository = estimateRepo;
+            const result = await this.estimateRepository.getAllWithPagination(req.query);
+
+            const items = result.data.map(doc => new Estimation(doc));
+            this.sendResponse(res, "Successfully retrived", {
+                items,
+                pagination: result.pagination
+            });
+        } catch (error) {
+            this.sendError(res, error.message);
+        }
+    }
+
     downloadEstimation = async (req, res) => {
         const { phone } = req.params;
         if (!phone) {
             return res.status(400).json({ error: 'Phone is required' });
         }
         try {
-            const { estimateRepo, conversationRepo } = await getRepositories();
-            this.conversationRepository = conversationRepo;
+            const { estimateRepo } = await getRepositories();
             this.estimateRepository = estimateRepo;
-            const conversation = await this.conversationRepository.findOne({ phone });
             let estimation = await this.estimateRepository.getEstimateByNumber(phone);
             if (!estimation) {
                 return res.status(404).json({ error: 'Estimation not found' });
@@ -126,15 +151,21 @@ export class ChatbotController extends Controller {
 
             // Agregar información básica
             datosExcel.push(['Número', phone]);
-            datosExcel.push(['Nombre', conversation.name]);
-            datosExcel.push(['Correo', conversation.email]);
-            datosExcel.push(['Descripción', conversation.description]);
+            datosExcel.push(['Nombre', estimation.name]);
+            datosExcel.push(['Correo', estimation.email]);
+            datosExcel.push(['Descripción', estimation.descripcion]);
+            datosExcel.push(['Número de contacto', estimation.contactPhone]);
+            datosExcel.push(['Compañia', estimation.company]);
             datosExcel.push(['Fecha de Creación', estimation.createdAt ? new Date(estimation.createdAt).toLocaleString() : 'N/A']);
+            datosExcel.push([]); // Línea en blanco
+            datosExcel.push(['Tipo de Proyecto', estimation.projectType]);
+            datosExcel.push(['Total Costo', estimation.total_costo]);
+            datosExcel.push(['Total Horas', estimation.total_horas]);
             datosExcel.push([]); // Línea en blanco
 
             // Procesar campos de la estimación
             Object.keys(estimation).forEach(key => {
-                if (key !== 'phone' && key !== 'description' && key !== 'createdAt' && key !== 'timestamp' && key !== '_id') {
+                if (key !== 'phone' && key !== 'name' && key !== 'email' && key !== 'description' && key !== 'contactPhone' && key !== 'descripcion' && key !== 'company' && key !== 'projectType' && key !== 'total_costo' && key !== 'total_horas' && key !== 'createdAt' && key !== 'timestamp' && key !== '_id') {
                     const valor = estimation[key];
 
                     // Si es un array de módulos, procesarlos individualmente

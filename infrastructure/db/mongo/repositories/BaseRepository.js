@@ -1,3 +1,5 @@
+import { PaginationHelper } from "../../../../utils/paginationHelper.js";
+
 export class BaseRepository {
     constructor(model) {
         this.model = model;
@@ -26,5 +28,10 @@ export class BaseRepository {
 
     async delete(id) {
         return this.model.findByIdAndDelete(id);
+    }
+
+    async getAllWithPagination(query) {
+        const { filters, pagination, sort, order } = PaginationHelper.applyPagination(query);
+        return await PaginationHelper.paginate(this.model, filters, pagination, sort, order);
     }
 }

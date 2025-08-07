@@ -11,16 +11,64 @@ export class SaveProject {
     async execute(message) {
         const from = message.from;
         try {
+            const projectTypeText = "🛠️ ¿Qué tipo de servicio requieres?\n1. Desarrollo de software\n2. Fábrica de software\n3. Ciberseguridad\n4. Inteligencia Artificial\n5. Consultoria TI";
             const text = message.text?.body?.trim();
 
             if (!this.conversations[from]) {
-                this.conversations[from] = {
-                    step: 0,
-                    data: {}
-                };
-                await this.whatsapp.sendMessage(from, "👋 ¡Hola! Gracias por contactarnos, para poder ayudarte con tu proyecto, necesito recopilar un poco de información.\n\n¿Cuál es tu nombre?");
+
+                const conversation = await this.conversationRepo.findOne({ phone: from });
+                if (!conversation) {
+                    this.conversations[from] = {
+                        step: 0,
+                        data: {}
+                    };
+                    await this.whatsapp.sendMessage(from, "👋 ¡Hola! Gracias por contactarnos, para poder ayudarte con tu proyecto, necesito recopilar un poco de información.\n\n¿Cuál es tu nombre?");
+                } else {
+                    await this.whatsapp.sendMessage(from, "👋 ¡Hola, " + conversation.name + "! un gusto verte de nuevo por aquí, estos son tus datos anteriormente guardados:\n\nNombre: " + conversation.name + "\nCorreo: " + conversation.email + "\nTeléfono de contacto: " + conversation.contactPhone + "\nEmpresa: " + conversation.company + "\n\n¿Deseas modificarlos o quieres continuar?\n1. Continuar\n2. Modificar");
+                    this.conversations[from] = {
+                        step: 0,
+                        data: {},
+                        modify: 1
+                    };
+                    this.conversations[from].data.phone = from;
+                    this.conversations[from].data.name = conversation.name;
+                    this.conversations[from].data.email = conversation.email;
+                    this.conversations[from].data.contactPhone = conversation.contactPhone;
+                    this.conversations[from].data.company = conversation.company;
+                    return true;
+                }
             } else {
                 const user = this.conversations[from];
+                
+                if (user.modify && user.modify == '1') {
+
+                    if (text.toString() !== '1' && text.toString() !== '2' && text.toLowerCase() !== 'continuar' && text.toLowerCase() !== 'modificar') {
+                        await this.whatsapp.sendMessage(from, "❗Por favor, elige una opción válida:\n1-2 o escribe el nombre de la acción.");
+                        return true;
+                    }
+
+                    const option = text == '1' || text.toLowerCase() == 'continuar' ? '1' : '2';
+
+                    switch (option) {
+                        case '1':
+                            user.step = 4;
+                            await this.whatsapp.sendMessage(from, projectTypeText);
+                            break;
+                        case '2':
+                            await this.whatsapp.sendMessage(from, "¿Cuál es tu nombre?");
+                            break;
+
+                        default:
+                            await this.whatsapp.sendMessage(from, "❗Por favor, elige una opción válida:\n1-2 o escribe el nombre de la acción.");
+                            break;
+                    }
+                    delete user.modify;
+                    return true;
+                }
+
+                if (user.modify) {
+                    return true;
+                }
 
                 switch (user.step) {
                     case 0:
@@ -58,7 +106,7 @@ export class SaveProject {
                         }
                         user.data.company = text;
                         user.step++;
-                        await this.whatsapp.sendMessage(from, "🛠️ ¿Qué tipo de servicio requieres?\n1. Desarrollo de software\n2. Fábrica de software\n3. Ciberseguridad\n4. Inteligencia Artificial\n5. Consultoria TI");
+                        await this.whatsapp.sendMessage(from, projectTypeText);
                         break;
                     case 4:
                         const normalizedText = this.normalizeText(text.toString());
@@ -100,7 +148,7 @@ export class SaveProject {
                         await this.conversationRepo.save(user.data)
                         break;
                     default:
-                        const responses = await this.openAiApi.query(text, from, this.prompts[user.data.projectType]);
+                        const responses = await this.openAiApi.query(text, from, this.prompts[user.data.projectType], user.data);
 
                         await this.whatsapp.sendMessage(from, responses.data);
                         if (responses.updateStatus) {
@@ -114,6 +162,7 @@ export class SaveProject {
             return true;
         } catch (error) {
             console.error(error);
+            return true;
             // await this.whatsapp.sendMessage(from, error.message);
             throw new Error(error.message);
         }

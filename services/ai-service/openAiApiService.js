@@ -17,7 +17,7 @@ export class OpenAiApi {
         });
     }
 
-    query = async (message, phone, prompt = PROMPT_DESARROLLO_SOFTWARE) => {
+    query = async (message, phone, prompt = PROMPT_DESARROLLO_SOFTWARE, additionalData = null) => {
         if (!message) {
             throw new Error('Message is required');
         }
@@ -61,7 +61,20 @@ export class OpenAiApi {
             if (response.includes("contacto@kodit.com.mx")) {
                 await this.conversationRepository.updatePendingStatus(phone, 0);
                 updateStatus = true;
-                await this.generateEstimateByNumber(phone);
+                const record = await this.conversationRepository.getAntepenultimateMessageAssistant(phone);
+                if (additionalData) {
+                    const data = {
+                        name: additionalData.name,
+                        email: additionalData.email,
+                        contactPhone: additionalData.contactPhone,
+                        company: additionalData.company,
+                        projectType: additionalData.projectType,
+                        resume: record ? record : null
+                    }
+                    await this.generateEstimateByNumber(phone, data);
+                } else {
+                    await this.generateEstimateByNumber(phone);
+                }
                 await this.conversationRepository.cleanMessages(phone);
             }
 
@@ -74,7 +87,7 @@ export class OpenAiApi {
     }
 
     // generarEstimacionPorNumero = async (phone) => {
-    generateEstimateByNumber = async (phone) => {
+    generateEstimateByNumber = async (phone, additionalData = null) => {
         const { estimateRepo, conversationRepo } = await getRepositories();
         this.conversationRepository = conversationRepo;
 
@@ -116,7 +129,7 @@ export class OpenAiApi {
                 // console.log("Estimation JSON:", estimationJSON);
 
                 // await guardarEstimacion(phone, estimationJSON);
-                await this.estimateRepository.saveEstimate(phone, estimationJSON);
+                await this.estimateRepository.saveEstimate(phone, estimationJSON, additionalData ? additionalData : {});
                 // await actualizarEstadoPendiente(phone, 2);
                 await this.conversationRepository.updatePendingStatus(phone, 2);
                 // console.log(`Estimate saved in the database for the number: ${phone}`);

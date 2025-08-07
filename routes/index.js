@@ -9,6 +9,7 @@ const router = Router();
 
 router.get('/', chatbotController.verify);
 router.post('/', chatbotController.index);
+router.get('/estimations', chatbotController.estimations);
 router.get('/estimation/:phone', chatbotController.estimation);
 router.post('/estimation', chatbotController.saveEstimation);
 router.get('/download-estimation/:phone', chatbotController.downloadEstimation);

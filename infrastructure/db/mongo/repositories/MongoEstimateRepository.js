@@ -22,12 +22,13 @@ export class MongoEstimateRepository extends EstimateRepository {
 
     // guardar estimaciones
     // async guardarEstimacion(numero, estimacionJSON) {
-    async saveEstimate(phone, estimation) {
+    async saveEstimate(phone, estimation, additionalData = {}) {
         // const now = new Date();
 
         await this.model.insertOne({
             phone,
             ...estimation,
+            ...additionalData
             // fecha_creacion: now,
             // timestamp: now
         });
@@ -37,6 +38,10 @@ export class MongoEstimateRepository extends EstimateRepository {
     // async obtenerEstimacionPorNumero(numero) {
     async getEstimateByNumber(phone) {
         return this.base.findOne({ phone });
+    }
+
+    async getAllWithPagination(query){
+        return this.base.getAllWithPagination(query);
     }
 
 }
