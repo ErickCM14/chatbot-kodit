@@ -54,12 +54,32 @@ export class SaveProject {
             '1': 'Desarrollador Full Stack Sr',
             '2': 'Desarrollador Full Stack Middle',
             '3': 'Desarrollador Full Stack Jr',
-            '4': 'QA Analyst',
-            '5': 'Business Analyst',
-            '6': 'DevOps Engineer',
-            '7': 'UI/UX Designer',
-            '8': 'Scrum Master',
-            '9': 'Project Manager'
+            '4': 'Desarrollador Frontend Sr',
+            '5': 'Desarrollador Frontend Middle',
+            '6': 'Desarrollador Frontend Jr',
+            '7': 'Desarrollador Backend Sr',
+            '8': 'Desarrollador Backend Middle',
+            '9': 'Desarrollador Backend Jr',
+            '10': 'Desarrollador Mobile Sr',
+            '11': 'Desarrollador Mobile Middle',
+            '12': 'Desarrollador Mobile Jr',
+            '13': 'QA Analyst',
+            '14': 'QA Automation Engineer',
+            '15': 'Business Analyst',
+            '16': 'Científico de Datos',
+            '17': 'Ingeniero de Datos',
+            '18': 'Ingeniero DevOps',
+            '19': 'Arquitecto Cloud',
+            '20': 'Especialista en Ciberseguridad',
+            '21': 'Diseñador UI/UX',
+            '22': 'Scrum Master',
+            '23': 'Product Owner',
+            '24': 'Project Manager',
+            '25': 'Líder Técnico',
+            '26': 'Arquitecto de Soluciones',
+            '27': 'Administrador de Base de Datos',
+            '28': 'Ingeniero de Soporte',
+            '29': 'Analista de Sistemas'
         };
     }
 
@@ -242,35 +262,48 @@ export class SaveProject {
                         await this.whatsapp.sendMessage(from, '👥 ¿Cuántos recursos requieres?');
                         break;
                     case 51:
-                        if (!/^\d+$/.test(text)) {
+                        if (!/^\d+$/.test(text) || parseInt(text) <= 0) {
                             await this.whatsapp.sendMessage(from, '❗Por favor, ingresa un número válido de recursos.');
                             break;
                         }
-                        user.data.consultingResources = text;
+                        user.data.consultingResources = parseInt(text);
+                        user.data.remainingResources = parseInt(text);
+                        user.data.selectedProfiles = [];
                         user.step = 52;
-                        const profilesText = Object.entries(this.consultingProfiles).map(([key, value]) => `${key}. ${value}`).join('\n');
-                        await this.whatsapp.sendMessage(from, `📋 Selecciona el perfil que necesitas:\n${profilesText}`);
+                        await this.whatsapp.sendMessage(from, `📋 Selecciona el perfil que necesitas:\n${this.getConsultingProfilesText()}`);
                         break;
                     case 52:
                         if (!this.consultingProfiles[text]) {
                             await this.whatsapp.sendMessage(from, '❗Por favor, selecciona un perfil válido.');
                             break;
                         }
-                        user.data.consultingProfile = this.consultingProfiles[text];
+                        user.selectedProfile = this.consultingProfiles[text];
                         user.step = 53;
-                        await this.whatsapp.sendMessage(from, `¿Cuántos recursos de ${this.consultingProfiles[text]} requieres?`);
+                        await this.whatsapp.sendMessage(from, `¿Cuántos recursos de ${this.consultingProfiles[text]} requieres? (Restantes: ${user.data.remainingResources})`);
                         break;
                     case 53:
                         if (!/^\d+$/.test(text)) {
                             await this.whatsapp.sendMessage(from, '❗Por favor, ingresa una cantidad válida.');
                             break;
                         }
-                        user.data.consultingProfileQuantity = text;
-                        user.data.description = `Consultoria TI: ${user.data.consultingMonths} meses, ${user.data.consultingResources} recursos, Perfil ${user.data.consultingProfile} (${user.data.consultingProfileQuantity})`;
-                        const consultingResponse = await this.openAiApi.query(user.data.description, from, this.prompts[user.data.projectType]);
-                        await this.whatsapp.sendMessage(from, consultingResponse.data);
-                        user.step = 6;
-                        await this.conversationRepo.save(user.data);
+                        const quantity = parseInt(text);
+                        if (quantity <= 0 || quantity > user.data.remainingResources) {
+                            await this.whatsapp.sendMessage(from, `❗Por favor, ingresa una cantidad entre 1 y ${user.data.remainingResources}.`);
+                            break;
+                        }
+                        user.data.selectedProfiles.push({ profile: user.selectedProfile, quantity });
+                        user.data.remainingResources -= quantity;
+                        delete user.selectedProfile;
+                        if (user.data.remainingResources > 0) {
+                            user.step = 52;
+                            await this.whatsapp.sendMessage(from, `📋 Selecciona el siguiente perfil (${user.data.remainingResources} recursos restantes):\n${this.getConsultingProfilesText()}`);
+                        } else {
+                            user.data.description = `Consultoria TI: ${user.data.consultingMonths} meses, ${user.data.consultingResources} recursos, Perfiles: ${user.data.selectedProfiles.map(p => `${p.profile} (${p.quantity})`).join(', ')}`;
+                            const consultingResponse = await this.openAiApi.query(user.data.description, from, this.prompts[user.data.projectType]);
+                            await this.whatsapp.sendMessage(from, consultingResponse.data);
+                            user.step = 6;
+                            await this.conversationRepo.save(user.data);
+                        }
                         break;
                     default:
                         const responses = await this.openAiApi.query(text, from, this.prompts[user.data.projectType], user.data);
@@ -295,5 +328,10 @@ export class SaveProject {
 
     normalizeText(text) {
         return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    }
+
+    getConsultingProfilesText() {
+        return Object.entries(this.consultingProfiles)
+            .map(([key, value]) => `${key}. ${value}`).join('\n');
     }
 }
