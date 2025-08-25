@@ -12,7 +12,7 @@ export const URL_META_WHATSAPP = process.env.URL_META_WHATSAPP;
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 export const OPENAI_MODEL = process.env.OPENAI_MODEL;
 export const OPTIONS_ENUM = {
-    "1": "Desarrollo de software",
+    "1": "Desarrollo de software o Aplicaciones Móviles",
     "2": "Fábrica de software",
     "3": "Ciberseguridad",
     "4": "Inteligencia Artificial",

@@ -86,7 +86,7 @@ export class SaveProject {
     async execute(message) {
         const from = message.from;
         try {
-            const projectTypeText = "🛠️ ¿Qué tipo de servicio requieres?\n1. Desarrollo de software\n2. Fábrica de software\n3. Ciberseguridad\n4. Inteligencia Artificial\n5. Consultoria TI";
+            const projectTypeText = "🛠️ ¿Qué tipo de servicio requieres?\n1. Desarrollo de software o Aplicaciones Móviles\n2. Fábrica de software\n3. Ciberseguridad\n4. Inteligencia Artificial\n5. Consultoria TI";
             const text = message.text?.body?.trim();
 
             if (!this.conversations[from]) {

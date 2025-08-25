@@ -97,7 +97,7 @@ Total estimado aproximado de horas: [total]
 Costo total aproximado: $[total en MXN]
 
 (Para las horas, considera un tiempo pesimista de 1.5 veces el tiempo estimado, agrega al total de horas el 25% de horas extras para tener en cuenta los tiempos de pruebas, despliegue, diseño, etc)
-(Usa $1000 MXN por hora INTERNAMENTE para calcular el costo total; **no** muestres la tarifa por hora).
+(Usa $600 MXN por hora INTERNAMENTE para calcular el costo total; **no** muestres la tarifa por hora).
 12. Al final, añade exactamente este mensaje:
 "Si deseas una estimación más detallada y formal, por favor escríbenos a contacto@kodit.com.mx y con gusto te atenderemos. ¡Gracias por tu interés en trabajar con nosotros!"
 
