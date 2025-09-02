@@ -95,8 +95,9 @@ export class SaveProject {
                 if (!conversation) {
                     this.conversations[from] = {
                         step: 0,
-                        data: {}
+                        data: { phone: from }
                     };
+                    await this.conversationRepo.save({ phone: from });
                     await this.whatsapp.sendMessage(from, "👋 ¡Hola! Gracias por contactarnos, para poder ayudarte con tu proyecto, necesito recopilar un poco de información.\n\n¿Cuál es tu nombre?");
                 } else {
                     await this.whatsapp.sendMessage(from, "👋 ¡Hola, " + conversation.name + "! un gusto verte de nuevo por aquí, estos son tus datos anteriormente guardados:\n\nNombre: " + conversation.name + "\nCorreo: " + conversation.email + "\nTeléfono de contacto: " + conversation.contactPhone + "\nEmpresa: " + conversation.company + "\n\n¿Deseas modificarlos o quieres continuar?\n1. Continuar\n2. Modificar");
@@ -151,7 +152,6 @@ export class SaveProject {
                             await this.whatsapp.sendMessage(from, "❗Por favor, escribe un nombre válido.");
                             break;
                         }
-                        user.data.phone = from;
                         user.data.name = text;
                         user.step++;
                         await this.whatsapp.sendMessage(from, '📧 ¿Cuál es tu correo electrónico?');
