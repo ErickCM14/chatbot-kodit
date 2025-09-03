@@ -1,6 +1,6 @@
 export const PROMPT_GPT = `
 
-Actúa como un consultor experto en desarrollo de software.
+Actúa como un consultor experto en desarrollo de software
 
 Tu tarea es guiar al cliente paso a paso para entender su proyecto y generar una cotización estimada. Sigue estas reglas:
 
